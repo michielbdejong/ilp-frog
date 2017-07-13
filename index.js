@@ -1,11 +1,15 @@
 const http = require('http')
-module.exports = (plugin, port) => {
+module.exports = (plugin, port, checkAuth) => {
   if (!plugin.getLimit) {
     plugin.getLimit = function() {
       return Promise.resolve(plugin.getInfo().maxBalance)
     }
   }
   http.createServer((req, res) => {
+    if (!checkAuth(req)) {
+      res.writeHead(403); res.end('Auth check failed'); return
+    }
+
     try {
       let queryPairs = req.url.split('?')[1].split('&')
       let methodParts
@@ -40,6 +44,7 @@ module.exports = (plugin, port) => {
             promise = plugin[method](input)
           }
           promise.then(output => {
+            // console.log('Frog executed plugin method:', { method, input, output })
             res.end(JSON.stringify(output))
           })
         } catch(e) {

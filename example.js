@@ -7,6 +7,6 @@ plugin = new PluginBells({
 console.log('connecting plugin, please wait...')
 plugin.connect().then(() => {
   console.log('plugin connected to the ledger')
-  Frog(plugin, 3010)
+  Frog(plugin, 3010, (req) => { console.log(req.headers.Authorization); return true })
   console.log('frog listening for rpc requests; try e.g. http://localhost:3010/rpc?method=get_balance')
 })
