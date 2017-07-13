@@ -14,7 +14,7 @@ module.exports = (plugin, port) => {
           methodParts = pair.substring('method='.length).split('_')
         }
       })
-      // e.g. params is 'method=send_transfer' -> methodParts is ['send', 'trasnfer'] -> method is 'sendTransfer'
+      // e.g. params is 'method=send_transfer' -> methodParts is ['send', 'transfer'] -> method is 'sendTransfer'
       const method = methodParts[0] + methodParts[1].charAt(0).toUpperCase() + methodParts[1].slice(1)
       let str = ''
       req.on('data', (chunk) => {
