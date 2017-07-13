@@ -1,0 +1,24 @@
+{
+  "name": "ilp-frog",
+  "version": "1.0.0",
+  "description": "Tiny wrapper around Interledger's Ledger Plugin Interface, that exposes Interledger's RPC API",
+  "main": "index.js",
+  "dependencies": {
+    "ilp-plugin-bells": "^14.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node bellsFrog.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michielbdejong/ilp-frog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michielbdejong/ilp-frog/issues"
+  },
+  "homepage": "https://github.com/michielbdejong/ilp-frog#readme"
+}
