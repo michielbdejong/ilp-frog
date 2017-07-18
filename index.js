@@ -1,5 +1,60 @@
 const http = require('http')
-module.exports = (plugin, port, checkAuth) => {
+
+       /********************************************************/
+      /* ILP-FROG: simple connector around an LPI plugin      */
+     /*                                                      */
+    /*  For most functions, it calls the same method on the */
+   /*   next hop. For some, it slightly translates the it  */
+  /*    using the transformArgs callback.                 */
+ /*    It also calls back when events are triggered.     */
+/********************************************************/
+
+module.exports = (plugin, port, checkAuth, ledgerArgs, ilpSecret) => {
+  const peerCaps = Buffer.from(ilpSecret.substring('ilp_secret:v0.1:'.length), 'base64').toString('ascii')
+  console.log('decoding peer caps', ilpSecret)
+  const [ /* 'PROTOCOL://LEDGER:TOKEN@HOST/PATH */, protocol, ledgerPrefix, token, hostname, rpcPath ] = peerCaps.match(/(http[s]{0,1}):\/\/(.*):(.*)\@(.*)\/(.*)/i)
+  const uriBase = protocol + '://' + hostname + '/' + rpcPath + '?prefix=' + ledgerPrefix + '&method=',
+
+  plugin.registerRequestHandler((message) => {
+    return fetch(uriBase + 'send_request', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify(Object.assign(message, {
+        from: ledgerPrefix + 'me',
+        to: ledgerPrefix + 'you',
+        ledger: ledgerPrefix
+      }))
+    }).then(response => {
+      return transformArgs(Object.assign(response, ledgerArgs))
+    })
+  })
+  plugin.on('incoming_prepare', (transfer) => {
+    return fetch(uriBase + 'send_transfer', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify(Object.assign(transfer, {
+        from: ledgerPrefix + 'me',
+        to: ledgerPrefix + 'you',
+        ledger: ledgerPrefix
+      }))
+    })
+  })
+  function registerFinalizer(lpiName, rpcName) {
+    plugin.on(lpiName, (transfer, extra) => {
+      return fetch(uriBase + rpcName, {
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify([ transfer.id, extra ])
+      })
+    })
+  }
+  registerFinalizer('outgoing_fulfill', 'fulfill_transfer')
+  registerFinalizer('outgoing_reject', 'reject_incoming_transfer')
+  registerFinalizer('outgoing_cancel', 'expire_transfer')
+
   if (!plugin.getLimit) {
     plugin.getLimit = function() {
       return Promise.resolve(plugin.getInfo().maxBalance)
@@ -40,6 +95,9 @@ module.exports = (plugin, port, checkAuth) => {
           // special-case methods that take array elements as separate arguments:
           if (['reject_incoming_transfer', 'fulfill_condition'].indexOf(method) !== -1) { 
             promise = plugin[method].apply(plugin, input)
+          } else if (['send_transfer', 'send_request'].indexOf(method) !== -1) {
+            // note that the frog's min message window is zero, so be careful with that
+            promise = plugin[method](Object.assign(input, ledgerArgs)
           } else {
             promise = plugin[method](input)
           }
