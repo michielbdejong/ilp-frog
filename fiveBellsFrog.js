@@ -14,5 +14,5 @@ plugin.connect().then(() => {
     console.log('request headers', req.headers)
     return (req.headers.authorization.trim() === correctAuthHeader)
   })
-  console.log(`frog listening for rpc requests; try e.g. curl -H "Authorization: ${correctAuthHeader}" http://localhost:3010/rpc?method=get_balance`)
+  console.log(`frog listening for rpc requests; try e.g. curl -H "Authorization: ${correctAuthHeader}" http://localhost:${process.env.PORT}/rpc?method=get_balance`)
 })
