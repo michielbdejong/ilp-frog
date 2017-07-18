@@ -11,21 +11,21 @@ plugin = new PluginBells({
 })
 
 console.log('connecting plugin, please wait...')
-const correctAuthHeader = 'Basic ' + new Buffer(process.env.BELLS_ACCOUNT + ':' + process.env.BELLS_PASSWORD).toString('base64')
+const correctAuthHeader = new Buffer(process.env.BELLS_ACCOUNT + ':' + process.env.BELLS_PASSWORD).toString('base64')
 
 plugin.connect().then(() => {
   return plugin.getInfo()
 }).then(ledgerInfo => {
   console.log('plugin connected to the ledger')
   Frog(plugin, process.env.PORT, (req) => {
-    console.log('request headers', req.headers)
-    return (req.headers.authorization.trim() === correctAuthHeader)
+    console.log('request headers', req.headers.authorization.trim() + ' ?= Bearer ' + correctAuthHeader)
+    return (req.headers.authorization.trim() === 'Bearer ' + correctAuthHeader)
   }, {
     ledger: ledgerInfo.prefix,
-    from: process.env.BELLS_ACCOUNT.split('.').reverse()[0],
-    to: process.env.OTHER_ACCOUNT
+    from: ledgerInfo.prefix + process.env.BELLS_ACCOUNT.split('/').reverse()[0],
+    to: ledgerInfo.prefix + process.env.OTHER_ACCOUNT
   }, process.env.PEER_ILP_SECRET)
   console.log(`frog listening for rpc requests; ilp_secret:v0.1:`
-      + Buffer.from('http://peer.ledger.:localtoken@localhost:' + process.env.PORT + '/rpc', 'ascii').toString('base64').replace(/\//g, '_').replace(/\+/g, '-').replace(/=/g, ''),
-      `try e.g. curl -H "Authorization: ${correctAuthHeader}" http://localhost:${process.env.PORT}/rpc?method=get_balance`)
+      + Buffer.from('http://peer.ledger.:' + correctAuthHeader + '@localhost:' + process.env.PORT + '/rpc', 'ascii').toString('base64').replace(/\//g, '_').replace(/\+/g, '-').replace(/=/g, ''),
+      `try e.g. curl -H "Authorization: Bearer ${correctAuthHeader}" "http://localhost:${process.env.PORT}/rpc?method=get_balance"`)
 })
