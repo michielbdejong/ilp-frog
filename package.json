@@ -2,7 +2,7 @@
   "name": "ilp-frog",
   "version": "1.0.0",
   "description": "Tiny wrapper around Interledger's Ledger Plugin Interface, that exposes Interledger's RPC API",
-  "main": "index.js",
+  "main": "fiveBellsFrog.js",
   "dependencies": {
     "ilp-plugin-bells": "^14.4.0",
     "node-fetch": "^1.7.1"
