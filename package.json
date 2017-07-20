@@ -4,7 +4,8 @@
   "description": "Tiny wrapper around Interledger's Ledger Plugin Interface, that exposes Interledger's RPC API",
   "main": "index.js",
   "dependencies": {
-    "ilp-plugin-bells": "^14.4.0"
+    "ilp-plugin-bells": "^14.4.0",
+    "node-fetch": "^1.7.1"
   },
   "devDependencies": {},
   "scripts": {
