@@ -1,4 +1,7 @@
 # ilp-frog
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/michielbdejong/ilp-frog.svg)](https://greenkeeper.io/)
+
 Tiny wrapper around Interledger's Ledger Plugin Interface, that exposes Interledger's RPC API
 
 ![frog](https://www.globeimports.com/wp-content/uploads/2016/08/26781F.jpg "Five Bells Frog")
